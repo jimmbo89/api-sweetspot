@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
       as: "businessPeople",
       onDelete: "CASCADE",
     });
+
+    Person.hasMany(models.Recipe, {
+      foreignKey: 'person_id',
+      as: 'recipes',
+    });
     }
   }
   Person.init(

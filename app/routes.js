@@ -12,6 +12,7 @@ const BusinessPersonController = require('./controllers/BusinessPersonController
 const DeepSeekController = require('./controllers/DeepSeekController');
 const PersonController = require('./controllers/PersonController');
 const WarehouseController = require('./controllers/WareHouseController');
+const RecipeController = require('./controllers/RecipeController');
 
 //Middlewares
 const auth = require('./middlewares/auth');
@@ -23,6 +24,7 @@ const { storeBusinessSchema, updateBusinessSchema, idBusinessSchema } = require(
 const { storeBusinessPersonSchema, updateBusinessPersonSchema, idBusinessPersonSchema } = require('./middlewares/validations/businesspersonValidation');
 const { storePersonSchema, updatePersonSchema, idPersonSchema, idBusinessIdSchema } = require('./middlewares/validations/personValidation');
 const { filterWarehouseSchema, idWarehouseSchema, storeWarehouseSchema, updateWarehouseSchema } = require('./middlewares/validations/warehouseValidation');
+const { filterRecipeSchema, idRecipeSchema, storeRecipeSchema, updateRecipeSchema } = require('./middlewares/validations/recipeValidation');
 
 
 router.get('/', (req, res) => res.json({ hello: "World" }));
@@ -95,6 +97,13 @@ router.post('/warehouse', multerImage('image', 'warehouses'), validateSchema(sto
 router.post('/warehouse-show', validateSchema(idWarehouseSchema), WarehouseController.show);
 router.post('/warehouse-update', multerImage('image', 'warehouses'), validateSchema(updateWarehouseSchema), WarehouseController.update);
 router.post('/warehouse-destroy', validateSchema(idWarehouseSchema), WarehouseController.destroy);
+
+router.get('/recipe', RecipeController.index);
+router.post('/recipe-cursor',validateSchema(filterRecipeSchema),  RecipeController.businessRecipes);
+router.post('/recipe', multerImage('image', 'recipes'), validateSchema(storeRecipeSchema), RecipeController.store);
+router.post('/recipe-show', validateSchema(idRecipeSchema), RecipeController.show);
+router.post('/recipe-update', multerImage('image', 'recipes'), validateSchema(updateRecipeSchema), RecipeController.update);
+router.post('/recipe-destroy', validateSchema(idRecipeSchema), RecipeController.destroy);
 
 
 
