@@ -7,8 +7,10 @@ const logger = require('../../config/logger'); // Logger para seguimiento
 
 const AuthRepository = {
   // Obtener todos los roles
-  async register(body, t) {
+  async register(body, t = null) {
     try {
+        logger.info('datos recibidos al registrarse AuthRepository');
+        logger.info(JSON.stringify(body));
         // Generar un hashSync de la contraseña
         let hashedPassword = bcrypt.hashSync(body.password, Number.parseInt(authConfig.rounds));
         const extractedName = body.user ? body.user : body.email.split('@')[0];

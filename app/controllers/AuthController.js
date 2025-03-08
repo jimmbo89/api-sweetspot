@@ -10,7 +10,8 @@ const { sendEmail } = require("../services/emailService");
 const AuthController = {
   //registro
   async register(req, res) {
-    logger.info("Registrando Usuario.");
+    logger.info('datos recibidos al registrarse AuthController');
+    logger.info(JSON.stringify(req.body));
 
     const t = await sequelize.transaction(); // Inicia una transacción
     try {
@@ -36,20 +37,19 @@ const AuthController = {
       // Hacer commit de la transacción
       await t.commit();
       // Respuesta en formato JSON
-      res.send("Correo enviado exitosamente.");
+      res.status(200).json({ message: "Correo enviado exitosamente." });
     } catch (error) {
       // Revertir la transacción en caso de error
       if (!t.finished) {
         await t.rollback();
       }
       // Verificar si el error está relacionado con el envío del correo
-      if (error.code === "EAUTH" || error.response.includes("535-5.7.8")) {
+      if (error.code === "EAUTH" || (error.response && typeof error.response === "string" && error.response.includes("535-5.7.8"))) {
         // Error específico de autenticación en el envío del correo
         logger.error("Error al enviar el correo: " + error.response);
         return res.status(422).json({
           error: "CorreoNoEnviado",
-          details:
-            "No se pudo enviar el correo debido a un problema con la autenticación o los datos del correo.",
+          details: "No se pudo enviar el correo debido a un problema con la autenticación o los datos del correo.",
           response: error.response, // O la respuesta completa para más detalles
         });
       }

@@ -14,6 +14,7 @@ oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
 // Función para enviar correos
 async function sendEmail({ to, subject, text, html }) {
   try {
+    logger.error("Entrando a enviar el correo", to);
     // Obtener el token de acceso
     const accessToken = await oAuth2Client.getAccessToken();
 
