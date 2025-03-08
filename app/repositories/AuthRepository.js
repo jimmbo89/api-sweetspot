@@ -1,50 +1,59 @@
-const { Op } = require('sequelize');
-const { User, UserToken, Person, sequelize } = require('../models'); // Importamos sequelize desde db
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const authConfig = require('../../config/auth');
-const logger = require('../../config/logger'); // Logger para seguimiento
+const { Op } = require("sequelize");
+const { User, UserToken, Person, sequelize } = require("../models"); // Importamos sequelize desde db
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const authConfig = require("../../config/auth");
+const logger = require("../../config/logger"); // Logger para seguimiento
 
 const AuthRepository = {
   // Obtener todos los roles
   async register(body, t = null) {
     try {
-        logger.info('datos recibidos al registrarse AuthRepository');
-        logger.info(JSON.stringify(body));
-        // Generar un hashSync de la contraseña
-        let hashedPassword = bcrypt.hashSync(body.password, Number.parseInt(authConfig.rounds));
-        const extractedName = body.user ? body.user : body.email.split('@')[0];
-        // Crear el usuario con la contraseña encriptada
-        const user = await User.create({
-        name: extractedName,
-        email: body.email,
-        password: hashedPassword
-        }, { transaction: t });
-        
-        //logger.info(JSON.stringify(user));
-        const person = await Person.create({
-            user_id: user.id,
-            name: body.name,
-            email: body.email,
-            address: body.address,
-            phone: body.phone,
-            cpf: body.cpf,
-            image: 'people/default.jpg'
-        }, { transaction: t });
-                   
-        // Creamos el objeto con la información del usuario y la persona
-        const userNew = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            person: {
-                id: person.id, // Aquí accedes a la persona creada
-                name: person.name
-            }
-        };
-        
-        // Creamos el token
-        /*const token = jwt.sign({ user: userNew}, authConfig.secret, {
+      logger.info("datos recibidos al registrarse AuthRepository");
+      logger.info(JSON.stringify(body));
+      // Generar un hashSync de la contraseña
+      let hashedPassword = bcrypt.hashSync(
+        body.password,
+        Number.parseInt(authConfig.rounds)
+      );
+      const extractedName = body.user ? body.user : body.email.split("@")[0];
+      // Crear el usuario con la contraseña encriptada
+      const user = await User.create(
+        {
+          name: extractedName,
+          email: body.email,
+          password: hashedPassword,
+        },
+        { transaction: t }
+      );
+
+      //logger.info(JSON.stringify(user));
+      const person = await Person.create(
+        {
+          user_id: user.id,
+          name: body.name,
+          email: body.email,
+          address: body.address,
+          phone: body.phone,
+          cpf: body.cpf,
+          image: "people/default.jpg",
+        },
+        { transaction: t }
+      );
+
+      // Creamos el objeto con la información del usuario y la persona
+      const userNew = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        person: {
+          id: person.id, // Aquí accedes a la persona creada
+          name: person.name,
+        },
+      };
+
+      // Creamos el token
+      /*const token = jwt.sign({ user: userNew}, authConfig.secret, {
             expiresIn: authConfig.expires
         });
 
@@ -60,30 +69,40 @@ const AuthRepository = {
             token: token,
             expires_at: expiresAt
         }, { transaction: t });*/
-        // Respuesta en formato JSON
-        return userNew;
+      // Respuesta en formato JSON
+      return userNew;
     } catch (error) {
-        logger.error('Error al registrar usuario AuthRepository: ' + error.message);
-        throw error;
+      logger.error(
+        "Error al registrar usuario AuthRepository: " + error.message
+      );
+      throw error;
     }
   },
 
   async store(body, t) {
     try {
-        // Generar un hashSync de la contraseña
-        let hashedPassword = bcrypt.hashSync(body.password, Number.parseInt(authConfig.rounds));
-        const extractedName = body.user ? body.user : body.email.split('@')[0];
-        // Crear el usuario con la contraseña encriptada
-        const user = await User.create({
-        name: extractedName,
-        email: body.email,
-        password: hashedPassword
-        }, { transaction: t });
- 
-        return user;
+      // Generar un hashSync de la contraseña
+      let hashedPassword = bcrypt.hashSync(
+        body.password,
+        Number.parseInt(authConfig.rounds)
+      );
+      const extractedName = body.user ? body.user : body.email.split("@")[0];
+      // Crear el usuario con la contraseña encriptada
+      const user = await User.create(
+        {
+          name: extractedName,
+          email: body.email,
+          password: hashedPassword,
+        },
+        { transaction: t }
+      );
+
+      return user;
     } catch (error) {
-        logger.error('Error al crear un usuario AuthRepository: ' + error.message);
-        throw error;
+      logger.error(
+        "Error al crear un usuario AuthRepository: " + error.message
+      );
+      throw error;
     }
   },
 
@@ -91,11 +110,35 @@ const AuthRepository = {
     return await User.findByPk(id);
   },
 
+  async findByNameOrEmail(name = null, email) {
+    const whereClause = {
+      [Op.or]: [],
+    };
 
-  async login() {
+    // Solo agregamos la condición de name si no es null
+    if (name !== null && name !== undefined) {
+      whereClause[Op.or].push({ name: name });
+    }
 
-  }
-  
+    // Siempre agregamos la condición de email
+    whereClause[Op.or].push({ email: email });
+
+    const user = await User.findOne({
+      where: whereClause,
+    });
+
+    if (user) {
+      // Determinar cuál campo causó el conflicto
+      if (user.name === name) {
+        return { user, conflictField: "name" };
+      } else if (user.email === email) {
+        return { user, conflictField: "email" };
+      }
+    }
+
+    return null; // No hay conflicto
+  },
+  async login() {},
 };
 
 module.exports = AuthRepository;

@@ -13,6 +13,27 @@ const AuthController = {
     logger.info('datos recibidos al registrarse AuthController');
     logger.info(JSON.stringify(req.body));
 
+    const { user, email} = req.body;
+    const result = await AuthRepository.findByNameOrEmail(user, email);
+
+    if (result) {
+        const { user, conflictField } = result;
+
+        // Mensaje de error específico
+        let errorMessage;
+        if (conflictField === 'name') {
+            errorMessage = 'El nombre ya está en uso.';
+        } else if (conflictField === 'email') {
+            errorMessage = 'El email ya está en uso.';
+        } 
+        logger.info(errorMessage);
+
+        return res.status(400).json({
+            message: errorMessage,
+            conflictField: conflictField // Opcional: devolver el campo en conflicto
+        });
+    }
+
     const t = await sequelize.transaction(); // Inicia una transacción
     try {
       const userNew = await AuthRepository.register(req.body, t);
