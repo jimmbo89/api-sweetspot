@@ -6,6 +6,7 @@ const PersonRepository = require('./PersonRepository');
 const ProductRepository = require('./ProductRepository');
 const WarehouseRepository = require('./WareHouseRepository');
 const RecipeRepository = require('./RecipeRepository');
+const DishRepository = require('./DishRepository');
 
 module.exports = {
     RoleRepository,
@@ -15,5 +16,6 @@ module.exports = {
     PersonRepository,
     ProductRepository,
     WarehouseRepository,
-    RecipeRepository
+    RecipeRepository,
+    DishRepository
 };

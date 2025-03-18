@@ -14,6 +14,7 @@ const PersonController = require('./controllers/PersonController');
 const WarehouseController = require('./controllers/WareHouseController');
 const RecipeController = require('./controllers/RecipeController');
 const ProductRecipeController = require('./controllers/ProductRecipeController');
+const DishController = require('./controllers/DishController');
 
 //Middlewares
 const auth = require('./middlewares/auth');
@@ -27,6 +28,7 @@ const { storePersonSchema, updatePersonSchema, idPersonSchema, idBusinessIdSchem
 const { filterWarehouseSchema, idWarehouseSchema, storeWarehouseSchema, updateWarehouseSchema } = require('./middlewares/validations/warehouseValidation');
 const { filterRecipeSchema, idRecipeSchema, storeRecipeSchema, updateRecipeSchema } = require('./middlewares/validations/recipeValidation');
 const { storeProductRecipeSchema, updateProductRecipeSchema, idProductRecipeSchema, assignProductsToRecipeSchema, idRecipeSchema } = require('./middlewares/validations/productrecipeValidation');
+const { storeDishSchema, updateDishSchema, idDishSchema, filterDishSchema } = require('./middlewares/validations/dishValidation');
 
 
 router.get('/', (req, res) => res.json({ hello: "World" }));
@@ -114,5 +116,12 @@ router.post('/recipe-products', validateSchema(assignProductsToRecipeSchema), Pr
 router.post('/get-recipe', validateSchema(idProductRecipeSchema), ProductRecipeController.indexByRecipe);
 router.put('/product-recipe', validateSchema(updateProductRecipeSchema), ProductRecipeController.updateProductQuantity);
 router.post('/product-recipe-destroy', validateSchema(idProductRecipeSchema), ProductRecipeController.destroy);
+
+router.get('/dish', DishController.index);
+router.post('/dish-business-cursor',validateSchema(filterDishSchema),  DishController.businessDishes);
+router.post('/dish', multerImage('image', 'dishes'), validateSchema(storeDishSchema), DishController.store);
+router.post('/dish-show', validateSchema(idDishSchema), DishController.show);
+router.post('/dish-update', multerImage('image', 'dishes'), validateSchema(updateDishSchema), DishController.update);
+router.post('/dish-destroy', validateSchema(idDishSchema), DishController.destroy);
 
 module.exports = router;
