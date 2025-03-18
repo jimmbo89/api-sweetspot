@@ -31,6 +31,14 @@ const storeRecipeSchema = Joi.object({
     "number.integer": '"business_id" debe ser un entero',
     "any.required": '"business_id" es un campo obligatorio',
   }),
+  products: Joi.array()
+    .items(
+      Joi.object({
+        product_id: Joi.number().required(),
+        cant: Joi.number().positive().required(), // Cantidad del producto,
+      })
+    )
+    .optional(),
 });
 
 // Esquema para actualizar una receta
@@ -75,6 +83,14 @@ const updateRecipeSchema = Joi.object({
     "number.integer": '"id" debe ser un entero',
     "any.required": '"id" es requerido para actualización',
   }),
+  products: Joi.array()
+    .items(
+      Joi.object({
+        product_id: Joi.number().required(),
+        cant: Joi.number().positive().required(), // Cantidad del producto,
+      })
+    )
+    .optional(),
 });
 
 // Esquema para operaciones que requieren ID

@@ -13,6 +13,7 @@ const DeepSeekController = require('./controllers/DeepSeekController');
 const PersonController = require('./controllers/PersonController');
 const WarehouseController = require('./controllers/WareHouseController');
 const RecipeController = require('./controllers/RecipeController');
+const ProductRecipeController = require('./controllers/ProductRecipeController');
 
 //Middlewares
 const auth = require('./middlewares/auth');
@@ -25,6 +26,7 @@ const { storeBusinessPersonSchema, updateBusinessPersonSchema, idBusinessPersonS
 const { storePersonSchema, updatePersonSchema, idPersonSchema, idBusinessIdSchema } = require('./middlewares/validations/personValidation');
 const { filterWarehouseSchema, idWarehouseSchema, storeWarehouseSchema, updateWarehouseSchema } = require('./middlewares/validations/warehouseValidation');
 const { filterRecipeSchema, idRecipeSchema, storeRecipeSchema, updateRecipeSchema } = require('./middlewares/validations/recipeValidation');
+const { storeProductRecipeSchema, updateProductRecipeSchema, idProductRecipeSchema, assignProductsToRecipeSchema, idRecipeSchema } = require('./middlewares/validations/productrecipeValidation');
 
 
 router.get('/', (req, res) => res.json({ hello: "World" }));
@@ -105,6 +107,12 @@ router.post('/recipe-show', validateSchema(idRecipeSchema), RecipeController.sho
 router.post('/recipe-update', multerImage('image', 'recipes'), validateSchema(updateRecipeSchema), RecipeController.update);
 router.post('/recipe-destroy', validateSchema(idRecipeSchema), RecipeController.destroy);
 
-
+router.get('/product-recipe', ProductRecipeController.index);
+//router.post('/product-recipe-cursor', validateSchema(filterRecipeSchema),  ProductRecipeController.businessRecipes);
+router.post('/product-recipe', validateSchema(storeProductRecipeSchema), ProductRecipeController.store);
+router.post('/recipe-products', validateSchema(assignProductsToRecipeSchema), ProductRecipeController.assignProductsToRecipe);
+router.post('/get-recipe', validateSchema(idProductRecipeSchema), ProductRecipeController.indexByRecipe);
+router.put('/product-recipe', validateSchema(updateProductRecipeSchema), ProductRecipeController.updateProductQuantity);
+router.post('/product-recipe-destroy', validateSchema(idProductRecipeSchema), ProductRecipeController.destroy);
 
 module.exports = router;

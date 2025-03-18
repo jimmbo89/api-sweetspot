@@ -17,6 +17,22 @@ const ProductRepository = {
     });
   },
 
+  async findByIds(ids) {
+    try {
+        const products = await Product.findAll({
+            where: {
+                id: {
+                    [Op.in]: ids, // Buscar todos los productos cuyos IDs estén en el array
+                },
+            },
+        });
+        return products;
+    } catch (error) {
+        logger.error("Error al buscar productos por IDs:", error);
+        throw error;
+    }
+},
+
   // Verificar si un producto existe por nombre (útil para evitar duplicados)
   async existsByName(name, excludeId = null) {
     const whereCondition = excludeId

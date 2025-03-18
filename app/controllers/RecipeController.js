@@ -4,7 +4,9 @@ const {
   RecipeRepository,
   BusinessRepository,
   PersonRepository,
+  ProductRepository,
 } = require("../repositories");
+const ProductRecipeRepository = require("../repositories/ProductRecipeRepository");
 
 const RecipeController = {
   // Listar todas las recetas
@@ -85,6 +87,7 @@ const RecipeController = {
     logger.info("Datos recibidos al crear una receta");
     logger.info(JSON.stringify(req.body));
 
+    const person_id =req.person.id;
     try {
       const business = await BusinessRepository.findById(req.body.business_id);
       if (!business) {
@@ -92,6 +95,30 @@ const RecipeController = {
           `RecipeController->store: Negocio no encontrado con ID ${req.body.business_id}`
         );
         return res.status(400).json({ msg: "BusinessNotFound" });
+      }
+
+
+
+      if (req.body.products && req.body.products.length > 0) {
+        // Extraer los IDs de los productos del array
+        const productIds = req.body.products.map((product) => product.product_id);
+
+        // Verificar si todos los productos existen
+        const existingProducts = await ProductRepository.findByIds(productIds);
+        const missingProductIds = productIds.filter(
+          (id) => !existingProducts.find((product) => product.id === id)
+        );
+
+        // Si faltan productos, devolver un error
+        if (missingProductIds.length > 0) {
+          logger.error(
+            `ProductRecipeController->assignProductsToRecipe: Los siguientes productos no existen: ${missingProductIds}`
+          );
+          return res.status(404).json({
+            msg: "ProductNotFound",
+            missingProductIds,
+          });
+        }
       }
 
       req.body.person_id = req.person.id;
@@ -108,6 +135,15 @@ const RecipeController = {
           return res.status(400).json({ msg: "RecipeExist" });
         }
         const recipe = await RecipeRepository.create(req.body, req.file, t);
+        if (req.body.products && req.body.products.length > 0) {
+          await ProductRecipeRepository.assignProductsToRecipe(
+            recipe.id,
+            req.body.business_id,
+            person_id,
+            req.body.products,
+            t
+          );
+        }
         await t.commit();
 
         logger.info(`Receta creada exitosamente (ID: ${recipe.id})`);
@@ -158,6 +194,7 @@ const RecipeController = {
     logger.info("Datos recibidos al editar una receta");
     logger.info(JSON.stringify(req.body));
 
+    const person_id = req.person_id;
     const recipe = await RecipeRepository.findById(req.body.id);
 
     if (!recipe) {
@@ -174,13 +211,25 @@ const RecipeController = {
       }
     }
 
-    if (req.body.person_id) {
-      const person = await PersonRepository.findById(req.body.person_id);
-      if (!person) {
-        logger.info(
-          `RecipeController->update: Persona no encontrada con ID ${req.body.person_id}`
+    if (req.body.products && req.body.products.length > 0) {
+      // Extraer los IDs de los productos del array
+      const productIds = req.body.products.map((product) => product.product_id);
+
+      // Verificar si todos los productos existen
+      const existingProducts = await ProductRepository.findByIds(productIds);
+      const missingProductIds = productIds.filter(
+        (id) => !existingProducts.find((product) => product.id === id)
+      );
+
+      // Si faltan productos, devolver un error
+      if (missingProductIds.length > 0) {
+        logger.error(
+          `ProductRecipeController->assignProductsToRecipe: Los siguientes productos no existen: ${missingProductIds}`
         );
-        return res.status(400).json({ msg: "PersonNotFound" });
+        return res.status(404).json({
+          msg: "ProductNotFound",
+          missingProductIds,
+        });
       }
     }
 
@@ -188,18 +237,18 @@ const RecipeController = {
       const t = await sequelize.transaction();
       try {
         if (req.body.name) {
-            logger.info("RecipeController->update: Editando el producto");
-            const productName = await RecipeRepository.existsByName(
-              req.body.name,
-              recipe.id
+          logger.info("RecipeController->update: Editando el producto");
+          const productName = await RecipeRepository.existsByName(
+            req.body.name,
+            recipe.id
+          );
+          if (productName) {
+            logger.info(
+              `RecipeController->update: Ya existe una Receta con ese nombre ${req.body.name}`
             );
-            if (productName) {
-              logger.info(
-                `RecipeController->update: Ya existe una Receta con ese nombre ${req.body.name}`
-              );
-              await t.commit();
-              return res.status(400).json({ msg: "RecipeExist" });
-            }
+            await t.commit();
+            return res.status(400).json({ msg: "RecipeExist" });
+          }
         }
         const updatedRecipe = await RecipeRepository.update(
           recipe,
@@ -207,6 +256,16 @@ const RecipeController = {
           req.file,
           t
         );
+
+        if (req.body.products && req.body.products.length > 0) {
+          await ProductRecipeRepository.assignProductsToRecipe(
+            recipe.id,
+            req.body.business_id,
+            person_id,
+            req.body.products,
+            t
+          );
+        }
         await t.commit();
 
         res.status(200).json(updatedRecipe);
