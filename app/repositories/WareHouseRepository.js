@@ -3,6 +3,15 @@ const { Warehouse, Product, Business } = require("../models");
 const logger = require("../../config/logger");
 const ImageService = require("../services/ImageService");
 
+const unitConversions = {
+  kg: { g: 1000, mg: 1000000 },
+  g: { kg: 0.001, mg: 1000 },
+  mg: { kg: 0.000001, g: 0.001 },
+  L: { mL: 1000 },
+  mL: { L: 0.001 },
+  u: {}, // Unidades no necesitan conversión
+};
+
 const WarehouseRepository = {
   // Obtener todos los registros de almacén con relaciones
   async findAll() {
@@ -201,6 +210,44 @@ const WarehouseRepository = {
       group: ["productId"],
       include: [{ model: Product, as: "product", attributes: ["name"] }],
     });
+  },
+
+  convertQuantity(quantity, fromUnit, toUnit) {
+    if (fromUnit === toUnit) {
+      return quantity; // No es necesario convertir
+    }
+
+    if (!unitConversions[fromUnit] || !unitConversions[fromUnit][toUnit]) {
+      throw new Error(`No se puede convertir de ${fromUnit} a ${toUnit}`);
+    }
+
+    return quantity * unitConversions[fromUnit][toUnit];
+  },
+
+  async updateWarehouseTotal(warehouse, quantity, unitType, measure, t) {
+    try {
+      // Convertir la cantidad a la unidad de medida del warehouse
+      const convertedQuantity = this.convertQuantity(
+        quantity,
+        unitType,
+        measure
+      );
+
+      // Sumar la cantidad convertida al total del warehouse
+      warehouse.total += convertedQuantity;
+
+      // Guardar los cambios
+      await warehouse.save({ transaction: t });
+
+      logger.info(
+        `Total del warehouse actualizado (ID: ${warehouseId}, Total: ${warehouse.total})`
+      );
+
+      return warehouse;
+    } catch (error) {
+      logger.error(`Error actualizando el total del warehouse: ${error.message}`);
+      throw error;
+    }
   },
 };
 
