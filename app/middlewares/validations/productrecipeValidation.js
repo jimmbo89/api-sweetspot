@@ -33,7 +33,7 @@ const idProductRecipeSchema = Joi.object({
 });
 
 // Esquema para validar el ID de una relación
-const idRecipeSchema = Joi.object({
+const idRecipeProductSchema = Joi.object({
     recipe_id: Joi.number().required(), // ID de la relación
 });
 
@@ -42,5 +42,5 @@ module.exports = {
     updateProductRecipeSchema,
     assignProductsToRecipeSchema,
     idProductRecipeSchema,
-    idRecipeSchema
+    idRecipeProductSchema
 };

@@ -42,7 +42,7 @@ module.exports = {
         }
       },
       business_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         references: {
           model: 'businesses',
           key: 'id'

@@ -156,12 +156,10 @@ const ProductRecipeRepository = {
       const mappedProducts = productRecipes.map((productRecipe) => ({
         id: productRecipe.id,
         recipe_id: productRecipe.recipe_id,
+        recipeId: productRecipe.recipe_id,
         product_id: productRecipe.product_id,
-        product_name: productRecipe.product.name, // Nombre del producto
-        business_id: productRecipe.business_id,
-        business_name: productRecipe.business.name, // Nombre del negocio
-        person_id: productRecipe.person_id,
-        person_name: productRecipe.person.name, // Nombre de la persona
+        productId: productRecipe.product_id,
+        productName: productRecipe.product.name, // Nombre del producto
         cant: productRecipe.cant,
       }));
 
@@ -230,10 +228,18 @@ const ProductRecipeRepository = {
    * @param {number} person_id - ID de la persona.
    * @returns {Array} - Array de relaciones producto-receta.
    */
-  async getProductRecipesByBusinessAndPerson(business_id, person_id) {
+  async getProductRecipesByBusinessAndPerson(business_id, person_id = null) {
     try {
+       // Construir la condición where
+       const whereCondition = {
+        business_id, // business_id siempre es requerido
+        [Op.or]: [
+          { person_id: person_id }, // Coincide con el person_id proporcionado
+          { person_id: null }, // O person_id es null
+        ],
+      };
       const productRecipes = await ProductRecipe.findAll({
-        where: { business_id, person_id },
+        where: whereCondition,
         include: [
           { model: Product, as: "product" },
           { model: Recipe, as: "recipe" },
@@ -244,9 +250,11 @@ const ProductRecipeRepository = {
       const mappedProductRecipes = productRecipes.map((productRecipe) => ({
         id: productRecipe.id,
         recipe_id: productRecipe.recipe_id,
-        recipe_name: productRecipe.recipe.name, // Nombre de la receta
+        recipeId: productRecipe.recipe_id,
+        recipeName: productRecipe.recipe.name, // Nombre de la receta
         product_id: productRecipe.product_id,
-        product_name: productRecipe.product.name, // Nombre del producto
+        productId: productRecipe.product_id,
+        productName: productRecipe.product.name, // Nombre del producto
         cant: productRecipe.cant,
       }));
 

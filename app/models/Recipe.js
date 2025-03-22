@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "person_id",
         as: "person",
       });
+
+      Recipe.belongsToMany(models.Dish, {
+        through: 'DishRecipe',
+        foreignKey: 'recipe_id',
+        otherKey: 'dish_id',
+      });
     }
   }
   Recipe.init(

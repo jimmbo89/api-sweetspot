@@ -15,6 +15,7 @@ const WarehouseController = require('./controllers/WareHouseController');
 const RecipeController = require('./controllers/RecipeController');
 const ProductRecipeController = require('./controllers/ProductRecipeController');
 const DishController = require('./controllers/DishController');
+const DishRecipeController = require('./controllers/DishRecipeController');
 
 //Middlewares
 const auth = require('./middlewares/auth');
@@ -27,9 +28,9 @@ const { storeBusinessPersonSchema, updateBusinessPersonSchema, idBusinessPersonS
 const { storePersonSchema, updatePersonSchema, idPersonSchema, idBusinessIdSchema } = require('./middlewares/validations/personValidation');
 const { filterWarehouseSchema, idWarehouseSchema, storeWarehouseSchema, updateWarehouseSchema } = require('./middlewares/validations/warehouseValidation');
 const { filterRecipeSchema, idRecipeSchema, storeRecipeSchema, updateRecipeSchema } = require('./middlewares/validations/recipeValidation');
-const { storeProductRecipeSchema, updateProductRecipeSchema, idProductRecipeSchema, assignProductsToRecipeSchema, idRecipeSchema } = require('./middlewares/validations/productrecipeValidation');
+const { storeProductRecipeSchema, updateProductRecipeSchema, idProductRecipeSchema, assignProductsToRecipeSchema, idRecipeProductSchema } = require('./middlewares/validations/productrecipeValidation');
 const { storeDishSchema, updateDishSchema, idDishSchema, filterDishSchema } = require('./middlewares/validations/dishValidation');
-
+const { storeDishRecipeSchema, updateDishRecipeSchema, assignRecipesToDishSchema, idDishRecipeSchema, } = require("./middlewares/validations/dishrecipeValidation");
 
 router.get('/', (req, res) => res.json({ hello: "World" }));
 
@@ -123,5 +124,13 @@ router.post('/dish', multerImage('image', 'dishes'), validateSchema(storeDishSch
 router.post('/dish-show', validateSchema(idDishSchema), DishController.show);
 router.post('/dish-update', multerImage('image', 'dishes'), validateSchema(updateDishSchema), DishController.update);
 router.post('/dish-destroy', validateSchema(idDishSchema), DishController.destroy);
+
+router.get('/dish-recipe', DishRecipeController.index);
+//router.post('/product-recipe-cursor', validateSchema(filterRecipeSchema),  ProductRecipeController.businessRecipes);
+router.post('/dish-recipe', validateSchema(storeDishRecipeSchema), DishRecipeController.store);
+router.post('/dish-recipes', validateSchema(assignRecipesToDishSchema), DishRecipeController.assignRecipesToDish);
+router.post('/get-dish', validateSchema(idDishRecipeSchema), DishRecipeController.indexByDish);
+router.put('/dish-recipe', validateSchema(updateDishRecipeSchema), DishRecipeController.updateDishDetails);
+router.post('/dish-recipe-destroy', validateSchema(idDishRecipeSchema), DishRecipeController.destroy);
 
 module.exports = router;

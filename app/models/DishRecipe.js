@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class ProductRecipe extends Model {
+  class DishRecipe extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,20 +11,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      ProductRecipe.belongsTo(models.Product, { foreignKey: 'product_id' });
-      ProductRecipe.belongsTo(models.Recipe, { foreignKey: 'recipe_id' });
-      ProductRecipe.belongsTo(models.Business, { foreignKey: 'business_id' });
-      ProductRecipe.belongsTo(models.Person, { foreignKey: 'person_id' });
+
+      DishRecipe.belongsTo(models.Dish, { foreignKey: "dish_id", as: "dish" });
+      DishRecipe.belongsTo(models.Recipe, { foreignKey: "recipe_id", as: "recipe" });
+      DishRecipe.belongsTo(models.Business, { foreignKey: "business_id", as: "business" });
+      DishRecipe.belongsTo(models.Person, { foreignKey: "person_id", as: "person" });
     }
   }
-  ProductRecipe.init(
+  DishRecipe.init(
     {
       id: {
         type: DataTypes.INTEGER,
         primaryKey: true, // Indica que 'id' es la clave primaria
         autoIncrement: true, // Esto hace que el campo 'id' sea auto-incrementable
       },
-      product_id: {
+      dish_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -40,14 +41,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      cant: DataTypes.FLOAT,
+      quantity: DataTypes.INTEGER,
+      type: DataTypes.STRING,
     },
     {
       sequelize,
-      modelName: "ProductRecipe",
-      tableName: "product_recipes",
+      modelName: "DishRecipe",
+      tableName: "dish_recipes",
       timestamps: true,
     }
   );
-  return ProductRecipe;
+  return DishRecipe;
 };

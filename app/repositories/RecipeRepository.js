@@ -52,6 +52,24 @@ const RecipeRepository = {
       });
     },
 
+    async findByIds(ids) {
+      try {
+        // Buscar las recetas cuyos IDs estén en el array proporcionado
+        const recipes = await Recipe.findAll({
+          where: {
+            id: {
+              [Op.in]: ids, // Usar el operador IN de Sequelize
+            },
+          },
+        });
+  
+        return recipes; // Devolver las recetas encontradas
+      } catch (error) {
+        logger.error("Error en RecipeRepository->findByIds:", error);
+        throw error; // Lanzar el error para manejarlo en el controlador
+      }
+    },
+
     async existsByName(name, excludeId = null) {
         const whereCondition = excludeId
           ? { name, id: { [Op.ne]: excludeId } } // Excluir un ID específico

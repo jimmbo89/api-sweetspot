@@ -56,18 +56,7 @@ const ProductRecipeController = {
       // Obtener los productos asociados a la receta desde el repositorio
       const productRecipes = await ProductRecipeRepository.getProductsByRecipeId(recipe_id);
 
-      const mappedProductRecipes = productRecipes.map((productRecipe) => ({
-        id: productRecipe.id,
-        recipe_id: productRecipe.recipe_id,
-        recipeId: productRecipe.recipe_id,
-        recipeName: productRecipe.recipe.name,
-        product_id: productRecipe.product_id,
-        productId: productRecipe.product_id,
-        productName: productRecipe.product.name,
-        cant: productRecipe.cant,
-      }));
-
-      res.status(200).json({ productRecipes: mappedProductRecipes });
+      res.status(200).json({ productRecipes: productRecipes });
     } catch (error) {
       const errorMsg = error.message || "Error desconocido";
       logger.error("ProductRecipeController->indexByRecipe: " + errorMsg);

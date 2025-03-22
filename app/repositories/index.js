@@ -8,16 +8,20 @@ const WarehouseRepository = require('./WareHouseRepository');
 const RecipeRepository = require('./RecipeRepository');
 const DishRepository = require('./DishRepository');
 const PurchaseHistoryRepository = require('./PurchaseHistoryRepository');
+const DishRecipeRepository = require('./DishRecipeRepository');
+const ProductRecipeRepository = require('./ProductRecipeRepository');
 
 module.exports = {
-    RoleRepository,
-    AuthRepository,
-    BusinessRepository,
-    BusinessPersonRepository,
-    PersonRepository,
-    ProductRepository,
-    WarehouseRepository,
-    RecipeRepository,
-    DishRepository,
-    PurchaseHistoryRepository
+  RoleRepository,
+  AuthRepository,
+  BusinessRepository,
+  BusinessPersonRepository,
+  PersonRepository,
+  ProductRepository,
+  WarehouseRepository,
+  RecipeRepository,
+  DishRepository,
+  PurchaseHistoryRepository,
+  ProductRecipeRepository,
+  DishRecipeRepository,
 };
