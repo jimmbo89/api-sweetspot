@@ -6,7 +6,7 @@ const logger = require("../../config/logger"); // Logger para seguimiento
 const BusinessRepository = {
   // Obtener todas las categorías jerárquicas
   async findAll() {
-    const businesses = await Category.findAll({
+    const businesses = await Business.findAll({
       //where: { parent_id: null },
       include: [
         {

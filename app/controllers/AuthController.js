@@ -147,6 +147,7 @@ const AuthController = {
         person: {
           id: user.person.id, // Aquí accedes a la persona creada
           name: user.person.name,
+          image: user.person.image, // Aquí accedes a la imagen de la persona
         },
       };
 
@@ -175,6 +176,7 @@ const AuthController = {
         token: token,
         name: user.person.name,
         personId: user.person.id,
+        image: user.person.image,
       });
     } catch (error) {
       const errorMsg = error.details
