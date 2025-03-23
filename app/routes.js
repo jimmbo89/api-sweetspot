@@ -24,7 +24,7 @@ const validateSchema = require('./middlewares/validateSchema');
 const { registerSchema, loginSchema, updatePasswordSchema } = require('./middlewares/validations/authValidation');
 const { storeRoleSchema, updateRoleSchema, idRoleSchema, typeRoleSchema } = require('./middlewares/validations/roleValidation');
 const { storeBusinessSchema, updateBusinessSchema, idBusinessSchema } = require('./middlewares/validations/businessValidation');
-const { storeBusinessPersonSchema, updateBusinessPersonSchema, idBusinessPersonSchema } = require('./middlewares/validations/businesspersonValidation');
+const { storeBusinessPersonSchema, updateBusinessPersonSchema, idBusinessPersonSchema, idBusiness_idSchema } = require('./middlewares/validations/businesspersonValidation');
 const { storePersonSchema, updatePersonSchema, idPersonSchema, idBusinessIdSchema } = require('./middlewares/validations/personValidation');
 const { filterWarehouseSchema, idWarehouseSchema, storeWarehouseSchema, updateWarehouseSchema } = require('./middlewares/validations/warehouseValidation');
 const { filterRecipeSchema, idRecipeSchema, storeRecipeSchema, updateRecipeSchema } = require('./middlewares/validations/recipeValidation');
@@ -83,11 +83,12 @@ router.post('/business-show', validateSchema(idBusinessSchema), BusinessControll
 router.post('/business-update', multerImage('image', 'businesses'), validateSchema(updateBusinessSchema), BusinessController.update);
 router.post('/business-destroy', validateSchema(idBusinessSchema), BusinessController.destroy);
 
-//Rutas Business
+//Rutas Business Person
 router.get('/business-person', BusinessPersonController.index);
-router.post('/business-person', validateSchema(storeBusinessPersonSchema), BusinessPersonController.store);
+router.post('/business-persons', validateSchema(idBusiness_idSchema), BusinessPersonController.indexByBusiness);
+router.post('/business-person', multerImage('image', 'people'), validateSchema(storeBusinessPersonSchema), BusinessPersonController.store_person);
 router.post('/business-person-show', validateSchema(idBusinessPersonSchema), BusinessPersonController.show);
-router.put('/business-person', validateSchema(updateBusinessPersonSchema), BusinessPersonController.update);
+router.post('/business-person-update', multerImage('image', 'people'), validateSchema(updateBusinessPersonSchema), BusinessPersonController.update_person);
 router.post('/business-destroy', validateSchema(idBusinessPersonSchema), BusinessPersonController.destroy);
 
 router.post('/person-index', validateSchema(idBusinessIdSchema), PersonController.index);

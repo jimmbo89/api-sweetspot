@@ -147,7 +147,7 @@ const PersonRepository = {
   },
 
   // Actualizar una persona con manejo de imágenes
-  async update(person, body, file, t) {
+  async update(person, body, file, t = null) {
     const { name, email, cpf, phone, address } = body;
     const fieldsToUpdate = ["name", "email", "cpf", "phone", "address"];
 
@@ -173,7 +173,7 @@ const PersonRepository = {
       }
 
       if (Object.keys(updatedData).length > 0) {
-        await person.update({ updatedData }, { transaction: t });
+        await person.update( updatedData , { transaction: t });
         logger.info(
           `Persona actualizada exitosamente: ${person.name} (ID: ${person.id})`
         );

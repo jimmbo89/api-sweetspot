@@ -93,6 +93,7 @@ const AuthRepository = {
           name: extractedName,
           email: body.email,
           password: hashedPassword,
+          email_verified_at: new Date(),
         },
         { transaction: t }
       );
@@ -137,6 +138,23 @@ const AuthRepository = {
     }
 
     return null; // No hay conflicto
+  },
+
+  async update(user, body) {
+    const fieldsToUpdate = ['name', 'email'];
+
+    const updatedData = Object.keys(body)
+      .filter(key => fieldsToUpdate.includes(key) && body[key] !== undefined)
+      .reduce((obj, key) => {
+        obj[key] = body[key];
+        return obj;
+      }, {});
+
+    if (Object.keys(updatedData).length > 0) {
+      await user.update(updatedData);
+      logger.info(`Usuario actualizado exitosamente (ID: ${user.id})`);
+    }
+    return user;
   },
   async login() {},
 };

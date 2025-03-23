@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { BusinessPerson } = require('../models'); // Aquí usamos el modelo BusinessPerson
+const { BusinessPerson, Person, Role, User } = require('../models'); // Aquí usamos el modelo BusinessPerson
 const logger = require('../../config/logger'); // Logger para seguimiento
 
 const BusinessPersonRepository = {
@@ -7,13 +7,81 @@ const BusinessPersonRepository = {
   async findAll() {
     return await BusinessPerson.findAll({
       attributes: ['id', 'business_id', 'person_id', 'role_id', 'active', 'pix', 'type', 'name', 'bank', 'workplace'],
+      include: [
+        {
+          model: Person, // Incluir datos de la persona
+          as: 'person',
+          attributes: ['id', 'name', 'email', 'phone'], // Selecciona los campos que necesitas
+        },
+        {
+          model: Role, // Incluir datos del rol
+          as: 'role',
+          attributes: ['id', 'name'], // Selecciona los campos que necesitas
+        },
+      ],
     });
   },
 
-  // Buscar una relación de business_Person por ID
+  // Buscar una relación de BusinessPerson por ID con datos de Person y Role
   async findById(id) {
     return await BusinessPerson.findByPk(id, {
+      attributes: [
+        "id",
+        "business_id",
+        "person_id",
+        "role_id",
+        "active",
+        "pix",
+        "type",
+        "name",
+        "bank",
+        "workplace",
+      ],
+      include: [
+        {
+          model: Person, // Incluir datos de la persona
+          as:'person',
+          attributes: ["id", "name", "email", "image"], // Selecciona los campos que necesitas
+          include: [
+            {
+              model: User,
+              as:'user',
+              attributes: ["id", "name",],
+            },
+          ],
+        },
+        {
+          model: Role, // Incluir datos del rol
+          as:'role',
+          attributes: ["id", "name", "type"], // Selecciona los campos que necesitas
+        },
+      ],
+    });
+  },
+
+  // Obtener trabajadores asociados a un business_id con datos de Person y Role
+  async findWorkersByBusinessId(businessId) {
+    return await BusinessPerson.findAll({
+      where: { business_id: businessId }, // Filtra por business_id
       attributes: ['id', 'business_id', 'person_id', 'role_id', 'active', 'pix', 'type', 'name', 'bank', 'workplace'],
+      include: [
+        {
+          model: Person, // Incluir datos de la persona
+          as:'person',
+          include: [
+            {
+              model: User,
+              as:'user',
+              attributes: ["id", "name",],
+            },
+          ],
+        },
+        {
+          model: Role, // Incluir datos del rol
+          as:'role',
+          attributes: ["id", "name", "type"], // Selecciona los campos que necesitas
+        },
+      ],
     });
   },
 
